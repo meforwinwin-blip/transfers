@@ -1,0 +1,18 @@
+Source Repository: GoProClient
+Source Git SHA: 73e40d8bcd465c505180bc0a3179056dce095dbd
+Archive Filename: GoProClient-73e40d8.7z
+Archive SHA-256: 46e4be4a8ad114cac5050a4f0779c61a6c24f6306875f03fcbd59b71dc9c09aa
+Archive Size Bytes: 2674554
+Base64 Chunk Count: 7
+Total Base64 Chunks:
+- GoProClient-73e40d8.7z.b64.001
+- GoProClient-73e40d8.7z.b64.002
+- GoProClient-73e40d8.7z.b64.003
+- GoProClient-73e40d8.7z.b64.004
+- GoProClient-73e40d8.7z.b64.005
+- GoProClient-73e40d8.7z.b64.006
+- GoProClient-73e40d8.7z.b64.007
+Total Base64 Characters: 3566072
+AES-256 Encryption: Yes (AES-256)
+Filename Encryption: Yes (-mhe=on)
+Standard Exclusions: .git, .build, .fastbuild, build, .pio, node_modules, venv, .venv, env, .vscode, .idea, .codex_tmp, *.log, *.o, *.obj, *.elf, *.bin, *.hex, *.tmp, *.swp, *.bak, .env*
