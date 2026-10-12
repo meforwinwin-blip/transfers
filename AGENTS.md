@@ -23,7 +23,7 @@ python3 /path/to/status-reporting/tools/report_from_source.py \
 
 **On Windows:** Run that same script using the source repository's configured
 working Python interpreter and your actual reporting checkout location.
-`C:\\Users\\Main\\source\\status-reporting` is a Windows-specific *example*,
+`C:\Users\Main\source\status-reporting` is a Windows-specific *example*,
 never a required path on other hosts.
 
 **No local source checkout, but Git/Python networking works:** The updated
