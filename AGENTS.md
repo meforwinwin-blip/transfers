@@ -1,31 +1,56 @@
 # Agent instructions
 
-<!-- status-reporting agent policy v1 -->
+<!-- status-reporting agent policy v2 -->
 
-## Mandatory coding-agent reporting
+## Mandatory agent status reporting (Windows, Linux, macOS and cloud)
 
-Every coding, review and build agent working in this repository must publish progress directly into the **HTML** dashboard in https://github.com/meforwinwin-blip/status-reporting. There is no JSON status feed, separate web server, or GitHub Actions reporting workflow.
+Every coding, review or build agent MUST report to the **HTML + GitHub-rendered
+README** dashboard in [meforwinwin-blip/status-reporting](https://github.com/meforwinwin-blip/status-reporting).
+No JSON reporting feed, GitHub Actions, GitHub Pages, separate server or email
+workflow is required or permitted for agent reporting.
 
-The entry point is `C:\Users\Main\source\status-reporting\tools\report_from_source.py`. Run it **from the source Git worktree**, using the working Python executable specified by this repository. It discovers the source repository, branch and HEAD SHA and invokes the direct HTML publisher (`tools/publish_html.py`) through a dedicated clone per agent. If the reporting checkout does not exist, clone `https://github.com/meforwinwin-blip/status-reporting.git` to `C:\Users\Main\source\status-reporting` first.
+**Read the canonical [cross-platform agent reporting guide](https://github.com/meforwinwin-blip/status-reporting/blob/main/docs/agent-reporting.md).**
+Do not assume the user's Windows paths, COM ports, `.bat` scripts, installed
+toolchain or local checkout exist in a Linux/macOS/container/remote environment.
 
-- Publish `running` when beginning an assigned task, on meaningful progress, and at the start of long builds/tests; refresh at least every 10–15 minutes during lengthy work.
-- Publish a truthful terminal `passed`, `failed`, or `blocked` report at completion. Explain next actions and blockers. Never claim an unexecuted build/test succeeded.
-- Include real build/test commands and process exit codes in the reports. Do not claim an uncommitted worktree was validated by the HEAD commit alone.
-- Use a unique `--agent` ID for every concurrently active agent, and keep it stable for that agent's updates.
-- If publishing fails, retry and include the failure in the agent's final response. Never include secrets in status or errors.
-
-Example initial report:
-
-```powershell
-& 'C:\Users\Main\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' C:\Users\Main\source\status-reporting\tools\report_from_source.py --agent cache-builder-1 --state running --phase build --summary 'Building firmware'
+**With a local source Git worktree (Linux/macOS):**
+```bash
+# In the source worktree; clone the reporting repo first if needed.
+python3 /path/to/status-reporting/tools/report_from_source.py \
+  --agent unique-agent-id --state running --phase planning \
+  --summary "Starting assigned work"
 ```
 
-After executing the **actual** build command, capture its exit code immediately and report it (the command shown below is illustrative; use the build command for this repository):
+**On Windows:** Run that same script using the source repository's configured
+working Python interpreter and your actual reporting checkout location.
+`C:\\Users\\Main\\source\\status-reporting` is a Windows-specific *example*,
+never a required path on other hosts.
 
-```powershell
-cmd /c .\build.bat cache
-$buildCode = $LASTEXITCODE
-& 'C:\Users\Main\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' C:\Users\Main\source\status-reporting\tools\report_from_source.py --agent cache-builder-1 --state $(if ($buildCode -eq 0) { 'passed' } else { 'failed' }) --phase build --summary 'Firmware build completed' --command 'build.bat cache' --exit-code $buildCode
+**No local source checkout, but Git/Python networking works:** The updated
+wrapper supports explicit source metadata without source autodetection:
+```bash
+python3 /path/to/status-reporting/tools/report_from_source.py \
+  --repo OWNER/REPO --branch ACTUAL_SOURCE_BRANCH \
+  --source-sha ACTUAL_HEX_SOURCE_COMMIT \
+  --agent unique-agent-id --state running --phase implementation \
+  --summary "Working through a GitHub connection"
 ```
+All three metadata values must refer to the real source revision. This mode
+still needs authenticated `git clone/fetch/push` to the reporting repository.
 
-Existing project-specific AGENTS.md rules remain in force. No custom GitHub Actions workflows should be created.
+**Only GitHub connector/API access, no usable git transport:** Do not assume
+`report_from_source.py` succeeded. Use the authorized connector to update the
+latest `index.html` agent row and regenerate `README.md`, then commit **both
+atomically**, checking the expected old Git HEAD to avoid overwriting other
+agents. Follow the linked guide. If the connector cannot write either, report
+the publishing failure honestly rather than inventing a report.
+
+Publish `running` when the task starts, after meaningful progress, before a
+lengthy build/test and at least every 10–15 minutes on long tasks. Publish one
+terminal state `passed`, `failed` or `blocked` with errors/next actions as
+appropriate. Use one stable, unique `--agent` ID per agent/task. Include the
+actual source repo, branch, commit SHA and **real** build/test commands and
+exit codes. Never mark unrun checks as passed: use `skipped`, disclose a missing
+toolchain, and distinguish user-confirmed results from agent-executed tests.
+Preserve uncommitted work and existing repository/worktree rules. Never
+force-push the reporting dashboard. No GitHub Actions.
